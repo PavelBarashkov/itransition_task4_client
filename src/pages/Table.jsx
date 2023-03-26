@@ -16,27 +16,44 @@ export const UserTable = observer(() => {
   const[checkAll, setCheckAll] = useState(false);
   const authUserId = jwtDecode(localStorage.getItem('token'));
   const [fetchData, error] = useFetching( async() => {
-  const response = await PostService.getAll();
-  const usersWithSelection = response.data.map((user) => ({ ...user, selected: false }));
+    const response = await PostService.getAll();
+    const usersWithSelection = response.data.map((user) => ({ ...user, selected: false }));
     setUsers(usersWithSelection);
   })
+
+  const getUserData = async (id) => {
+    try {
+      const response = await PostService.getUserId(id);
+      
+      if (response === 'blocked') {
+        localStorage.removeItem('token');
+        user.setUser({});
+        user.setIsAuth(false);
+      }
+    
+    } catch (error) {
+        localStorage.removeItem('token');
+        user.setUser({});
+        user.setIsAuth(false);
+    }
+  }
+  getUserData(authUserId.id)
+
   useEffect(()=> {
     fetchData()
+  
   },[user.isAuth])
-
- 
   const handleCheckChange = (id) => {
     const updatedUsers = users.map((user) => {
       if (user.id === id) {
+        
         return { ...user, selected: user.selected !== undefined ? !user.selected : false };
       } else {
         return user;
       }
     });
-    
     setUsers(updatedUsers);
   };
-  
   const handleSelectAllChange = () => {
     if (checkAll) {
       setCheckAll(false)
@@ -58,6 +75,9 @@ export const UserTable = observer(() => {
     for (const person of selectedUsers) {
       try {
         await PostService.dataUpdateId(person.id, 'blocked');
+        
+
+
         if(person.id === authUserId.id) {
           localStorage.removeItem('token');
           user.setUser({});

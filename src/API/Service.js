@@ -12,5 +12,10 @@ export default class PostService {
         const response = await axios.put(`https://task4-server-o7ux.onrender.com/api/user/users/${id}`, {status});
         return response;
     } 
+    static async getUserId(id) {
+        const response = await axios.get(`https://task4-server-o7ux.onrender.com/api/user/users/${id}`);
+        return response.data;
+    } 
+
 }
 
